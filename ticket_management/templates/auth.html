@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+<!--
+  auth.html — Login / Register page
+  PLACEHOLDERS:
+    Ticket Management   → e.g. "EventHub"
+    [TERMS_URL]  → URL to your Terms of Service page
+-->
+
+{% block title %}
+  {% if mode == 'register' %}Register{% else %}Login{% endif %} — Ticket Management
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-sm-10 col-md-8 col-lg-5">
+
+    <!-- ── Tab switcher ─────────────────────────────────── -->
+    <ul class="nav nav-pills nav-justified mb-4 shadow-sm rounded bg-white p-1" id="authTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link {% if mode != 'register' %}active{% endif %}"
+                id="login-tab" data-bs-toggle="pill" data-bs-target="#loginPane"
+                type="button" role="tab" aria-controls="loginPane">
+          <i class="bi bi-box-arrow-in-right me-1"></i>Login
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link {% if mode == 'register' %}active{% endif %}"
+                id="register-tab" data-bs-toggle="pill" data-bs-target="#registerPane"
+                type="button" role="tab" aria-controls="registerPane">
+          <i class="bi bi-person-plus me-1"></i>Register
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+
+      <!-- ── Login ──────────────────────────────────────── -->
+      <div class="tab-pane fade {% if mode != 'register' %}show active{% endif %}"
+           id="loginPane" role="tabpanel" aria-labelledby="login-tab">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <h4 class="card-title mb-4">Welcome back</h4>
+            <form method="POST" action="{{ url_for('login') }}" novalidate>
+              <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token','') }}" />
+
+              <div class="mb-3">
+                <label for="login_email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="login_email" name="email"
+                       placeholder="you@example.com" required autocomplete="email" />
+              </div>
+
+              <div class="mb-3">
+                <label for="login_password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="login_password" name="password"
+                       placeholder="••••••••" required autocomplete="current-password" />
+              </div>
+
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me" />
+                <label class="form-check-label" for="remember_me">Remember me</label>
+              </div>
+
+              <div class="d-grid">
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Register ───────────────────────────────────── -->
+      <div class="tab-pane fade {% if mode == 'register' %}show active{% endif %}"
+           id="registerPane" role="tabpanel" aria-labelledby="register-tab">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4">
+            <h4 class="card-title mb-4">Create an account</h4>
+            <form method="POST" action="{{ url_for('register') }}" novalidate>
+              <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token','') }}" />
+
+              <div class="mb-3">
+                <label for="reg_name" class="form-label">Full name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="reg_name" name="name"
+                       placeholder="Jane Smith" required autocomplete="name" />
+              </div>
+
+              <div class="mb-3">
+                <label for="reg_email" class="form-label">Email address <span class="text-danger">*</span></label>
+                <input type="email" class="form-control" id="reg_email" name="email"
+                       placeholder="you@example.com" required autocomplete="email" />
+              </div>
+
+              <div class="mb-3">
+                <label for="reg_password" class="form-label">Password <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="reg_password" name="password"
+                       placeholder="••••••••" required autocomplete="new-password" />
+              </div>
+
+              <div class="mb-3">
+                <label for="reg_confirm" class="form-label">Confirm password <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="reg_confirm" name="confirm_password"
+                       placeholder="••••••••" required autocomplete="new-password" />
+              </div>
+
+              <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="terms" name="terms" required />
+                <label class="form-check-label" for="terms">
+                  I agree to the <a href="[TERMS_URL]" target="_blank">Terms of Service</a>
+                </label>
+              </div>
+
+              <div class="d-grid">
+                <button type="submit" class="btn btn-success">
+                  <i class="bi bi-person-check me-1"></i>Create Account
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.tab-content -->
+  </div>
+</div>
+{% endblock %}

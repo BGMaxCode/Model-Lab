@@ -1,0 +1,8 @@
+# [APP_NAME] Registration System — Python Dependencies
+# Replace versions with latest stable if needed.
+
+Flask>=3.0.0
+Flask-SQLAlchemy>=3.1.1
+Werkzeug>=3.0.0
+Flask-WTF>=1.2.1       # provides CSRF protection via CSRFProtect()
+WTForms>=3.1.1

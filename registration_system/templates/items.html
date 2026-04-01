@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+<!--
+  items.html — Full list / management view
+  PLACEHOLDERS (passed from app.py as template variables):
+    {{ item_label }}   → singular label
+    {{ items_label }}  → plural label
+    {{ items }}        → SQLAlchemy Pagination object
+    {{ search }}       → current search query string
+-->
+
+{% block title %}{{ items_label }} — [APP_NAME]{% endblock %}
+
+{% block content %}
+
+<!-- ── Page Header ─────────────────────────────────────────── -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="mb-0">{{ items_label }}</h2>
+  <a href="{{ url_for('new_item') }}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>New {{ item_label }}
+  </a>
+</div>
+
+<!-- ── Search Bar ──────────────────────────────────────────── -->
+<form method="GET" action="{{ url_for('list_items') }}" class="mb-3">
+  <div class="input-group" style="max-width:400px">
+    <span class="input-group-text"><i class="bi bi-search"></i></span>
+    <input type="text" class="form-control" name="q"
+           placeholder="Search {{ items_label | lower }}…"
+           value="{{ search }}" />
+    <button class="btn btn-outline-secondary" type="submit">Search</button>
+    {% if search %}
+      <a href="{{ url_for('list_items') }}" class="btn btn-outline-danger">
+        <i class="bi bi-x-lg"></i>
+      </a>
+    {% endif %}
+  </div>
+</form>
+
+<!-- ── Table ───────────────────────────────────────────────── -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    {% if items.items %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <!-- Sortable header placeholders — add ?sort=column&dir=asc/desc links if needed -->
+              <th>Name</th>
+              <th>Email</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items.items %}
+            <tr>
+              <td class="fw-semibold">{{ item.name }}</td>
+              <td class="text-muted">{{ item.email }}</td>
+              <td>{{ item.category }}</td>
+              <td>
+                {% if item.status == "Active" %}
+                  <span class="badge bg-success rounded-pill">
+                    <i class="bi bi-check-circle me-1"></i>{{ item.status }}
+                  </span>
+                {% else %}
+                  <span class="badge bg-secondary rounded-pill">
+                    <i class="bi bi-dash-circle me-1"></i>{{ item.status }}
+                  </span>
+                {% endif %}
+              </td>
+              <td class="text-muted small">{{ item.created_at.strftime("%b %d, %Y") }}</td>
+              <td class="text-end">
+                <a href="{{ url_for('show_item', item_id=item.id) }}"
+                   class="btn btn-sm btn-outline-primary me-1" title="Edit {{ item_label }}">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <form method="POST"
+                      action="{{ url_for('delete_item', item_id=item.id) }}"
+                      class="d-inline"
+                      onsubmit="return confirm('Delete this {{ item_label }}? This cannot be undone.')">
+                  <button class="btn btn-sm btn-outline-danger" title="Delete {{ item_label }}">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── Pagination ───────────────────────────────────── -->
+      {% if items.pages > 1 %}
+      <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
+        <small class="text-muted">
+          Showing {{ items.first }}–{{ items.last }} of {{ items.total }}
+        </small>
+        <nav aria-label="{{ items_label }} pagination">
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item {% if not items.has_prev %}disabled{% endif %}">
+              <a class="page-link" href="{{ url_for('list_items', page=items.prev_num, q=search) }}">
+                &laquo;
+              </a>
+            </li>
+            {% for p in items.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+              {% if p %}
+                <li class="page-item {% if p == items.page %}active{% endif %}">
+                  <a class="page-link" href="{{ url_for('list_items', page=p, q=search) }}">{{ p }}</a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">…</span></li>
+              {% endif %}
+            {% endfor %}
+            <li class="page-item {% if not items.has_next %}disabled{% endif %}">
+              <a class="page-link" href="{{ url_for('list_items', page=items.next_num, q=search) }}">
+                &raquo;
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      {% endif %}
+
+    {% else %}
+      <!-- ── Empty State ────────────────────────────────── -->
+      <div class="text-center text-muted py-5">
+        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+        {% if search %}
+          No {{ items_label | lower }} match <strong>{{ search }}</strong>.
+          <a href="{{ url_for('list_items') }}">Clear search</a>
+        {% else %}
+          No {{ items_label | lower }} yet.
+          <a href="{{ url_for('new_item') }}">Create the first one!</a>
+        {% endif %}
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

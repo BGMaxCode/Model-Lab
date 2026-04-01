@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+<!--
+  form.html — Create / Edit / View a single item
+  PLACEHOLDERS (passed from app.py as template variables):
+    {{ item }}          → None (create) or Item object (edit/view)
+    {{ item_label }}    → singular label, e.g. "Registration"
+    {{ categories }}    → list of category strings from CATEGORY_OPTIONS
+    {{ statuses }}      → list of status strings from STATUS_OPTIONS
+    {{ readonly }}      → True when in view-only mode
+
+  FORM FIELD PLACEHOLDERS (customise labels to match your domain):
+    Full Name        → e.g. "Full Name", "Event Title", "Ticket Holder"
+    Attendee Email       → e.g. "Contact Email", "Attendee Email"
+    Pass Type    → e.g. "Ticket Type", "Event Category", "Department"
+    Dietary Requirements → e.g. "Special Requests", "Notes", "Description"
+    Registration Status      → e.g. "Registration Status", "Availability"
+    Proof of ID        → e.g. "Attachment", "Supporting Document", "Photo"
+-->
+
+{% set is_edit = item is not none %}
+{% set is_view = readonly is defined and readonly %}
+
+{% block title %}
+  {% if is_view %}View{% elif is_edit %}Edit{% else %}New{% endif %} {{ item_label }} — EventHub
+{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <!-- ── Breadcrumb ──────────────────────────────────── -->
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('list_items') }}">{{ item_label }}s</a></li>
+        <li class="breadcrumb-item active">
+          {% if is_view %}View{% elif is_edit %}Edit{% else %}New{% endif %}
+        </li>
+      </ol>
+    </nav>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white">
+        <h4 class="mb-0">
+          {% if is_view %}
+            <i class="bi bi-eye me-2 text-secondary"></i>View {{ item_label }}
+          {% elif is_edit %}
+            <i class="bi bi-pencil me-2 text-primary"></i>Edit {{ item_label }}
+          {% else %}
+            <i class="bi bi-plus-circle me-2 text-success"></i>New {{ item_label }}
+          {% endif %}
+        </h4>
+      </div>
+
+      <div class="card-body">
+        <form method="POST"
+              action="{% if is_edit %}{{ url_for('update_item', item_id=item.id) }}{% else %}{{ url_for('create_item') }}{% endif %}"
+              enctype="multipart/form-data"
+              novalidate>
+          <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token','') }}" />
+
+          <!-- ── Full Name ──────────────────────────── -->
+          <div class="mb-3">
+            <label for="name" class="form-label">
+              Full Name <span class="text-danger">*</span>
+            </label>
+            <input type="text" class="form-control" id="name" name="name"
+                   value="{{ item.name if item else '' }}"
+                   placeholder="e.g. Jane Smith"
+                   required
+                   {% if is_view %}readonly{% endif %} />
+            <div class="invalid-feedback">Please enter a name.</div>
+          </div>
+
+          <!-- ── Attendee Email ─────────────────────────── -->
+          <div class="mb-3">
+            <label for="email" class="form-label">
+              Attendee Email <span class="text-danger">*</span>
+            </label>
+            <input type="email" class="form-control" id="email" name="email"
+                   value="{{ item.email if item else '' }}"
+                   placeholder="jane@example.com"
+                   required
+                   {% if is_view %}readonly{% endif %} />
+            <div class="invalid-feedback">Please enter a valid email.</div>
+          </div>
+
+          <!-- ── Pass Type ──────────────────────── -->
+          <div class="mb-3">
+            <label for="category" class="form-label">
+              Pass Type <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" id="category" name="category"
+                    required {% if is_view %}disabled{% endif %}>
+              <option value="" disabled {% if not item %}selected{% endif %}>
+                — Select Pass Type —
+              </option>
+              {% for cat in categories %}
+                <option value="{{ cat }}"
+                        {% if item and item.category == cat %}selected{% endif %}>
+                  {{ cat }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- ── Dietary Requirements ───────────────────── -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Dietary Requirements</label>
+            <textarea class="form-control" id="description" name="description"
+                      rows="3"
+                      placeholder="Optional details…"
+                      {% if is_view %}readonly{% endif %}>{{ item.description if item else '' }}</textarea>
+          </div>
+
+          <!-- ── Registration Status ────────────────────────── -->
+          <div class="mb-3">
+            <label class="form-label">Registration Status <span class="text-danger">*</span></label>
+            <div class="d-flex gap-3">
+              {% for st in statuses %}
+                <div class="form-check">
+                  <input class="form-check-input" type="radio"
+                         name="status" id="status_{{ loop.index }}"
+                         value="{{ st }}"
+                         {% if (item and item.status == st) or (not item and loop.first) %}checked{% endif %}
+                         {% if is_view %}disabled{% endif %} />
+                  <label class="form-check-label" for="status_{{ loop.index }}">{{ st }}</label>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- ── Proof of ID (optional) ─────────────── -->
+          {% if not is_view %}
+          <div class="mb-4">
+            <label for="attachment" class="form-label">Proof of ID <span class="text-muted">(optional)</span></label>
+            <input type="file" class="form-control" id="attachment" name="attachment" />
+            <div class="form-text">Accepted formats: PDF, JPG, PNG (max 5 MB)</div>
+          </div>
+          {% endif %}
+
+          <!-- ── Actions ───────────────────────────────── -->
+          <div class="d-flex gap-2">
+            {% if not is_view %}
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-floppy me-1"></i>
+                {% if is_edit %}Save Changes{% else %}Create {{ item_label }}{% endif %}
+              </button>
+            {% endif %}
+            <a href="{{ url_for('list_items') }}" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i>Back
+            </a>
+          </div>
+
+        </form>
+      </div><!-- /.card-body -->
+    </div><!-- /.card -->
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Bootstrap 5 client-side validation
+  (function () {
+    'use strict';
+    document.querySelectorAll('form').forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  })();
+</script>
+{% endblock %}
