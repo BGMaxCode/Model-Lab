@@ -1,0 +1,198 @@
+GIT GUIDE: CLONING AND MANAGING THE ATM REPOSITORY
+===================================================
+
+1. CLONING THE REPOSITORY
+------------------------
+
+Step 1: Open your terminal/command prompt
+Step 2: Navigate to your desired workspace directory
+   Windows:
+   cd C:\Users\YourUsername\Documents
+   
+   Mac/Linux:
+   cd ~/Documents
+
+Step 3: Clone the repository
+   git clone https://github.com/yourusername/ICS1405-Model-Lab-INSP.git
+   
+Step 4: Navigate into the cloned repository
+   cd ICS1405-Model-Lab-INSP
+
+Step 5: Verify you're on the main branch
+   git branch
+   (Should show: * main or * master)
+
+
+2. INITIAL SETUP
+---------------
+
+After cloning, set up your Git identity (if not already configured):
+
+   git config user.name "Your Full Name"
+   git config user.email "your.email@example.com"
+
+To set globally across all repositories:
+   git config --global user.name "Your Full Name"
+   git config --global user.email "your.email@example.com"
+
+
+3. ADDING FILES TO THE REPOSITORY
+---------------------------------
+
+Step 1: Create or modify files in your local repository directory
+
+Step 2: Check the status of your changes
+   git status
+   
+   This will show:
+   - Untracked files (new files)
+   - Modified files (changed files)
+   - Deleted files
+
+Step 3: Add files to the staging area
+
+   Option A - Add specific files:
+   git add filename.html
+   git add path/to/folder/file.py
+   
+   Option B - Add all changes:
+   git add .
+   
+   Option C - Add all files of a specific type:
+   git add *.html
+
+Step 4: Verify files are staged
+   git status
+   (Staged files will appear in green)
+
+Step 5: Commit your changes with a meaningful message
+   git commit -m "Add ATM HTML pages for login and main menu"
+   
+   Good commit message examples:
+   - "Add withdrawal HTML page"
+   - "Update ATM balance inquiry feature"
+   - "Fix PIN validation logic in login form"
+
+Step 6: Push changes to the remote repository
+   git push origin main
+   
+   (Replace 'main' with 'master' if your default branch is master)
+
+
+4. COMMON WORKFLOW EXAMPLE
+--------------------------
+
+# Clone the repository
+git clone https://github.com/yourusername/ICS1405-Model-Lab-INSP.git
+cd ICS1405-Model-Lab-INSP
+
+# Create a new feature branch (optional but recommended)
+git branch feature/atm-deposit-page
+git checkout feature/atm-deposit-page
+
+# Make changes - create or modify files
+# (Example: create atm_deposit.html)
+
+# Check what changed
+git status
+
+# Stage the changes
+git add atm_deposit.html
+
+# Commit the changes
+git commit -m "Add ATM deposit page HTML"
+
+# Push to remote
+git push origin feature/atm-deposit-page
+
+# Create a Pull Request on GitHub (optional)
+
+
+5. USEFUL GIT COMMANDS REFERENCE
+-------------------------------
+
+View commit history:
+   git log
+   git log --oneline (shorter view)
+
+View changes before staging:
+   git diff
+
+View staged changes:
+   git diff --staged
+
+Unstage files:
+   git reset HEAD filename.html
+
+Undo changes to a file:
+   git checkout -- filename.html
+
+See remote repository URL:
+   git remote -v
+
+Update local repository with latest changes from remote:
+   git pull origin main
+
+Create a new branch:
+   git branch branch-name
+   git checkout branch-name
+   (Or combined: git checkout -b branch-name)
+
+Switch branches:
+   git checkout branch-name
+
+Merge branch into main:
+   git checkout main
+   git merge branch-name
+
+Delete a branch:
+   git branch -d branch-name
+
+View all branches:
+   git branch -a
+
+
+6. TROUBLESHOOTING
+-----------------
+
+If you get "Permission denied (publickey)":
+   - Ensure SSH key is added to GitHub account
+   - Or use HTTPS URL instead: git clone https://github.com/yourusername/repo.git
+
+If you get "merge conflict":
+   - Edit the conflicting files manually
+   - Look for <<<<<<, ======, and >>>>>> markers
+   - Keep desired changes and remove markers
+   - Stage and commit: git add file.html && git commit -m "Resolve merge conflict"
+
+If you forgot to add a file to your commit:
+   git add forgotten_file.html
+   git commit --amend (amends the last commit)
+
+
+7. BEST PRACTICES
+----------------
+
+✓ Commit frequently with meaningful messages
+✓ Pull before pushing to avoid conflicts
+✓ Use branches for features (feature/atm-withdraw)
+✓ Write clear commit messages in imperative mood
+✓ Don't commit sensitive data (API keys, passwords)
+✓ Review changes before committing: git diff
+✓ Work on feature branches, test, then merge to main
+
+
+QUICK REFERENCE CHEAT SHEET
+===========================
+
+Clone repo:              git clone <url>
+Check status:           git status
+Add files:              git add .
+Commit:                 git commit -m "message"
+Push:                   git push origin main
+Pull:                   git pull origin main
+View history:           git log --oneline
+Create branch:          git checkout -b branch-name
+Switch branch:          git checkout branch-name
+Merge branch:           git merge branch-name
+Delete branch:          git branch -d branch-name

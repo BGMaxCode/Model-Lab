@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM - Card Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .atm-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            padding: 40px;
+        }
+        
+        .atm-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .atm-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .atm-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-cancel:hover {
+            background: #d0d0d0;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .info-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .card-icon {
+            text-align: center;
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="atm-container">
+        <div class="atm-header">
+            <div class="card-icon">🏧</div>
+            <h1>ATM System</h1>
+            <p>Welcome to Your Bank ATM</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="cardNumber">Card Number:</label>
+                <input 
+                    type="text" 
+                    id="cardNumber" 
+                    name="cardNumber" 
+                    placeholder="Enter 16-digit card number"
+                    maxlength="16"
+                    required
+                >
+                <div class="error-message" id="cardError">Please enter a valid card number</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="pin">PIN:</label>
+                <input 
+                    type="password" 
+                    id="pin" 
+                    name="pin" 
+                    placeholder="Enter your PIN"
+                    maxlength="4"
+                    required
+                >
+                <div class="error-message" id="pinError">PIN must be 4 digits</div>
+            </div>
+            
+            <div class="button-group">
+                <a href = "menu.html">
+                    <input type="submit" value="Submit">
+                </a>
+                <button type="reset" class="btn-cancel">Clear</button>
+            </div>
+        </form>
+        
+        <div class="info-box">
+            <strong>Security Tip:</strong> Never share your PIN with anyone. Always ensure the ATM is unobstructed when entering your PIN.
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('loginForm');
+        const cardInput = document.getElementById('cardNumber');
+        const pinInput = document.getElementById('pin');
+        
+        // Only allow numbers in card field
+        cardInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '');
+        });
+        
+        // Only allow numbers in PIN field
+        pinInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, '');
+        });
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const card = cardInput.value;
+            const pin = pinInput.value;
+            
+            // Validation
+            if (card.length !== 16) {
+                document.getElementById('cardError').style.display = 'block';
+                return;
+            }
+            
+            if (pin.length !== 4) {
+                document.getElementById('pinError').style.display = 'block';
+                return;
+            }
+            
+            // Simulate API call
+            alert('Login successful! Redirecting to main menu...');
+            // In real scenario: window.location.href = 'atm_menu.html';
+        });
+    </script>
+</body>
+</html>

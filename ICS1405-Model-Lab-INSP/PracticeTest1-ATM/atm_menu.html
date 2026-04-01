@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM - Main Menu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .atm-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 500px;
+            padding: 40px;
+        }
+        
+        .atm-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+        
+        .atm-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .customer-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .customer-info p {
+            margin: 5px 0;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .menu-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 30px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .menu-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .menu-button:active {
+            transform: translateY(-2px);
+        }
+        
+        .menu-icon {
+            font-size: 32px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-logout {
+            flex: 1;
+            padding: 12px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #b71c1c;
+        }
+        
+        .timer {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="atm-container">
+        <div class="atm-header">
+            <h1>ATM Main Menu</h1>
+            <p>Select a Transaction</p>
+        </div>
+        
+        <div class="customer-info">
+            <p><strong>Account Holder:</strong> John Doe</p>
+            <p><strong>Account No.:</strong> 1234567890</p>
+            <p><strong>Last Transaction:</strong> 2 hours ago</p>
+        </div>
+        
+        <div class="menu-grid">
+            <button class="menu-button" onclick="navigateTo('withdraw.html')">
+                <span class="menu-icon">💰</span>
+                Withdraw Cash
+            </button>
+            
+            <button class="menu-button" onclick="navigateTo('deposit.html')">
+                <span class="menu-icon">💳</span>
+                Deposit Cash
+            </button>
+            
+            <button class="menu-button" onclick="navigateTo('balance.html')">
+                <span class="menu-icon">💵</span>
+                Balance Inquiry
+            </button>
+            
+            <button class="menu-button" onclick="navigateTo('transfer.html')">
+                <span class="menu-icon">🔄</span>
+                Fund Transfer
+            </button>
+            
+            <button class="menu-button" onclick="navigateTo('print_receipt.html')">
+                <span class="menu-icon">🖨️</span>
+                Print Receipt
+            </button>
+            
+            <button class="menu-button" onclick="changePin()">
+                <span class="menu-icon">🔐</span>
+                Change PIN
+            </button>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-logout" onclick="logout()">Logout & Eject Card</button>
+        </div>
+        
+        <div class="timer">
+            ⏱️ Session will expire in: <span id="timer">02:00</span>
+        </div>
+    </div>
+    
+    <script>
+        let timeLeft = 120; // 2 minutes
+        
+        function navigateTo(page) {
+            alert('Navigating to ' + page);
+            // window.location.href = page;
+        }
+        
+        function logout() {
+            if (confirm('Are you sure you want to logout? Your card will be ejected.')) {
+                alert('Card ejected successfully. Thank you for using our ATM!');
+                // window.location.href = 'atm_login.html';
+            }
+        }
+        
+        function changePin() {
+            alert('Redirecting to PIN change...');
+            // window.location.href = 'change_pin.html';
+        }
+        
+        // Timer countdown
+        setInterval(function() {
+            if (timeLeft > 0) {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent = 
+                    (minutes < 10 ? '0' : '') + minutes + ':' + 
+                    (seconds < 10 ? '0' : '') + seconds;
+            } else {
+                alert('Session expired! Your card will be retained.');
+                logout();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

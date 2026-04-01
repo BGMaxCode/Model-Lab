@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM - Balance Inquiry</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .atm-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 450px;
+            padding: 40px;
+        }
+        
+        .atm-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+        
+        .atm-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .account-select {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 25px;
+        }
+        
+        .account-select label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .account-select select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .account-select select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .account-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .account-option {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .account-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .account-option.selected {
+            border-color: #667eea;
+            background: #e8f5e9;
+        }
+        
+        .account-number {
+            color: #666;
+            font-size: 12px;
+            margin-top: 3px;
+        }
+        
+        .balance-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 25px;
+            display: none;
+        }
+        
+        .balance-display.active {
+            display: block;
+        }
+        
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .balance-amount {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .balance-details {
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
+            padding-top: 15px;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .balance-detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-cancel:hover {
+            background: #d0d0d0;
+        }
+        
+        .info-text {
+            color: #666;
+            font-size: 12px;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="atm-container">
+        <div class="atm-header">
+            <h1>Balance Inquiry</h1>
+            <p>Check your account balance</p>
+        </div>
+        
+        <div class="account-select">
+            <label>Select Account:</label>
+            <div class="account-options">
+                <div class="account-option" onclick="selectAccount('savings', 'Savings Account', '10050000', 'XX5678')">
+                    <strong>Savings Account</strong>
+                    <div class="account-number">Account: 1234XX5678</div>
+                </div>
+                <div class="account-option" onclick="selectAccount('checking', 'Checking Account', '25000', 'XX9012')">
+                    <strong>Checking Account</strong>
+                    <div class="account-number">Account: 1234XX9012</div>
+                </div>
+                <div class="account-option" onclick="selectAccount('credit', 'Credit Card', '-5000', 'XX3456')">
+                    <strong>Credit Card Account</strong>
+                    <div class="account-number">Account: 1234XX3456</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="balanceDisplay" class="balance-display">
+            <div class="balance-label">Current Balance</div>
+            <div class="balance-amount" id="balanceAmount">₹0</div>
+            <div class="balance-details">
+                <div class="balance-detail-row">
+                    <span>Account Type:</span>
+                    <span id="accountType">-</span>
+                </div>
+                <div class="balance-detail-row">
+                    <span>Last Updated:</span>
+                    <span id="lastUpdated">-</span>
+                </div>
+                <div class="balance-detail-row">
+                    <span>Account Number:</span>
+                    <span id="accountNumber">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-submit" id="printBtn" onclick="printBalance()" disabled>Print Receipt</button>
+            <button class="btn-cancel" onclick="goBack()">Back</button>
+        </div>
+        
+        <div class="info-text">
+            ✓ Balance inquiry is instant and does not charge any fee<br>
+            ✓ This transaction takes less than 5 seconds
+        </div>
+    </div>
+    
+    <script>
+        let selectedAccount = null;
+        
+        function selectAccount(account, type, balance, number) {
+            selectedAccount = {
+                account: account,
+                type: type,
+                balance: balance,
+                number: number
+            };
+            
+            // Update UI
+            document.querySelectorAll('.account-option').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Show balance
+            displayBalance();
+        }
+        
+        function displayBalance() {
+            if (!selectedAccount) return;
+            
+            const balanceDisplay = document.getElementById('balanceDisplay');
+            const balanceAmount = document.getElementById('balanceAmount');
+            const accountType = document.getElementById('accountType');
+            const accountNumber = document.getElementById('accountNumber');
+            const lastUpdated = document.getElementById('lastUpdated');
+            const printBtn = document.getElementById('printBtn');
+            
+            // Format balance
+            const balance = parseFloat(selectedAccount.balance);
+            const formattedBalance = balance < 0 
+                ? `-₹${Math.abs(balance).toLocaleString('en-IN')}` 
+                : `₹${balance.toLocaleString('en-IN')}`;
+            
+            balanceAmount.textContent = formattedBalance;
+            accountType.textContent = selectedAccount.type;
+            accountNumber.textContent = '1234' + selectedAccount.number;
+            
+            // Get current time
+            const now = new Date();
+            lastUpdated.textContent = now.toLocaleString('en-IN');
+            
+            // Show balance display and enable print button
+            balanceDisplay.classList.add('active');
+            printBtn.disabled = false;
+        }
+        
+        function printBalance() {
+            if (!selectedAccount) return;
+            
+            alert('Receipt printing...\n\n' +
+                  'Account: ' + selectedAccount.type + '\n' +
+                  'Balance: ₹' + selectedAccount.balance + '\n' +
+                  'Transaction Type: Balance Inquiry\n' +
+                  'Date: ' + new Date().toLocaleString('en-IN'));
+            
+            // window.print(); // Uncomment to actual print
+        }
+        
+        function goBack() {
+            alert('Returning to main menu...');
+            // window.location.href = 'atm_menu.html';
+        }
+    </script>
+</body>
+</html>

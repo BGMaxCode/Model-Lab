@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM - Withdraw Cash</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .atm-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 450px;
+            padding: 40px;
+        }
+        
+        .atm-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+        
+        .atm-header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .quick-amount {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .quick-btn {
+            background: #f5f5f5;
+            border: 2px solid #ddd;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #333;
+            transition: all 0.3s;
+        }
+        
+        .quick-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .balance-info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .balance-info p {
+            color: #2e7d32;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-submit:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-cancel:hover {
+            background: #d0d0d0;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .info-text {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="atm-container">
+        <div class="atm-header">
+            <h1>Withdraw Cash</h1>
+            <p>Select withdrawal amount</p>
+        </div>
+        
+        <div class="balance-info">
+            <p>Available Balance: ₹50,000</p>
+        </div>
+        
+        <form id="withdrawForm">
+            <div class="form-group">
+                <label>Quick Select Amount:</label>
+                <div class="quick-amount">
+                    <button type="button" class="quick-btn" onclick="setAmount(100)">₹100</button>
+                    <button type="button" class="quick-btn" onclick="setAmount(500)">₹500</button>
+                    <button type="button" class="quick-btn" onclick="setAmount(1000)">₹1,000</button>
+                    <button type="button" class="quick-btn" onclick="setAmount(2000)">₹2,000</button>
+                    <button type="button" class="quick-btn" onclick="setAmount(5000)">₹5,000</button>
+                    <button type="button" class="quick-btn" onclick="setAmount(10000)">₹10,000</button>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="amount">Or Enter Custom Amount:</label>
+                <input 
+                    type="number" 
+                    id="amount" 
+                    name="amount" 
+                    placeholder="Amount must be in multiples of 100"
+                    min="100"
+                    step="100"
+                    required
+                >
+                <div class="error-message" id="amountError">Amount must be multiple of 100</div>
+                <p class="info-text">✓ Amount must be in multiples of 100</p>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn-submit">Withdraw</button>
+                <button type="button" class="btn-cancel" onclick="goBack()">Back</button>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        const form = document.getElementById('withdrawForm');
+        const amountInput = document.getElementById('amount');
+        
+        function setAmount(value) {
+            amountInput.value = value;
+        }
+        
+        function goBack() {
+            alert('Returning to main menu...');
+            // window.location.href = 'atm_menu.html';
+        }
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const amount = parseInt(amountInput.value);
+            
+            if (isNaN(amount) || amount < 100 || amount % 100 !== 0) {
+                document.getElementById('amountError').style.display = 'block';
+                return;
+            }
+            
+            if (amount > 50000) {
+                alert('Insufficient balance!');
+                return;
+            }
+            
+            alert('Withdrawal successful! ₹' + amount + ' has been dispensed.');
+            // window.location.href = 'atm_menu.html';
+        });
+    </script>
+</body>
+</html>

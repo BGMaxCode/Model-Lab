@@ -1,0 +1,409 @@
+GITLAB CI/CD SETUP GUIDE FOR ATM PROJECT
+=========================================
+
+This guide explains how to set up and use GitLab CI/CD for the ATM system project.
+
+## OVERVIEW
+
+The CI/CD pipeline includes 3 main stages:
+1. **Build** - Install dependencies and prepare the environment
+2. **Test** - Run quality checks and validations
+3. **Deploy** - Package and deploy the application
+
+## GITLAB CI/CD CONFIGURATION (.gitlab-ci.yml)
+
+The pipeline is defined in `.gitlab-ci.yml` with the following jobs:
+
+### BUILD STAGE
+- **build_dependencies**: Installs Python (for MLFlow) and Node.js dependencies
+
+### TEST STAGE
+- **run_tests**: Validates Python/MLFlow setup and HTML file structure
+- **lint_frontend**: Runs HTML linting (optional, can fail)
+
+### DEPLOY STAGE
+- **package_application**: Creates deployment package
+- **deploy_staging**: Manual deployment to staging (develop branch)
+- **deploy_production**: Manual deployment to production (tags only)
+- **cleanup**: Cleans up temporary files
+
+## GITLAB SETUP STEPS
+
+### Step 1: Enable GitLab CI/CD
+```bash
+# In GitLab web interface:
+# 1. Go to your project
+# 2. Navigate to Settings > CI/CD
+# 3. Expand "Runners" section
+# 4. Note the registration token
+```
+
+### Step 2: Register a GitLab Runner (if using self-hosted)
+```bash
+# Install GitLab Runner on your server
+sudo curl -L --output /usr/local/bin/gitlab-runner "https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64"
+sudo chmod +x /usr/local/bin/gitlab-runner
+sudo useradd --comment 'GitLab Runner' --create-home gitlab-runner --shell /bin/bash
+sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner
+sudo gitlab-runner start
+
+# Register the runner
+sudo gitlab-runner register --url "https://gitlab.com/" --registration-token "YOUR_TOKEN_HERE"
+```
+
+### Step 3: Configure Runner Executors
+```bash
+# For Docker executor (recommended):
+sudo gitlab-runner register --executor docker --docker-image alpine:latest
+
+# For Shell executor (direct execution):
+sudo gitlab-runner register --executor shell
+```
+
+### Step 4: Verify Runner Status
+```bash
+# Check runner status
+sudo gitlab-runner status
+
+# List all runners
+sudo gitlab-runner list
+
+# Verify in GitLab UI: Settings > CI/CD > Runners
+```
+
+## GIT COMMANDS FOR CI/CD WORKFLOW
+
+### Initial Setup
+```bash
+# Clone the repository
+git clone https://gitlab.com/your-username/atm-project.git
+cd atm-project
+
+# Create develop branch
+git checkout -b develop
+git push -u origin develop
+
+# Add the CI/CD configuration
+git add .gitlab-ci.yml
+git commit -m "Add GitLab CI/CD pipeline configuration"
+git push origin develop
+```
+
+### Development Workflow
+```bash
+# Create feature branch
+git checkout -b feature/add-atm-deposit-page
+# Make changes...
+git add .
+git commit -m "Add deposit page functionality"
+git push origin feature/add-atm-deposit-page
+
+# Create merge request
+# In GitLab: Repository > Merge Requests > New merge request
+# Source: feature/add-atm-deposit-page
+# Target: develop
+```
+
+### Release Process
+```bash
+# Merge to main for production release
+git checkout main
+git merge develop
+git push origin main
+
+# Create version tag
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0
+```
+
+## PIPELINE TRIGGERS AND CONDITIONS
+
+### Automatic Triggers
+- **Push to main/develop**: Runs build and test stages
+- **Merge Requests**: Runs full pipeline (build + test)
+- **Tags**: Runs complete pipeline including packaging
+
+### Manual Triggers
+- **Staging Deployment**: Click "Deploy" button in GitLab UI (develop branch only)
+- **Production Deployment**: Click "Deploy" button in GitLab UI (tags only)
+
+## GITLAB CI/CD COMMANDS AND FEATURES USED
+
+### Pipeline Configuration
+```yaml
+stages:          # Define pipeline stages
+  - build
+  - test
+  - deploy
+
+variables:       # Global variables for all jobs
+  PYTHON_VERSION: "3.9"
+  NODE_VERSION: "18"
+```
+
+### Job Configuration
+```yaml
+job_name:
+  stage: build              # Assign to stage
+  image: python:3.9         # Docker image to use
+  before_script:            # Commands before main script
+    - command1
+  script:                   # Main job commands
+    - command2
+  artifacts:                # Files to save between jobs
+    paths:
+      - file.txt
+  only:                     # When to run this job
+    - main
+    - develop
+  when: manual             # Manual trigger only
+```
+
+### Environment Configuration
+```yaml
+environment:               # Define deployment environment
+  name: production
+  url: https://atm.example.com
+```
+
+### Conditional Execution
+```yaml
+only:                      # Run only on specific refs
+  - main
+  - tags
+  - merge_requests
+
+when: manual              # Require manual trigger
+allow_failure: true       # Don't fail pipeline if job fails
+```
+
+## MONITORING AND DEBUGGING
+
+### View Pipeline Status
+```bash
+# In GitLab UI:
+# CI/CD > Pipelines
+# Click on pipeline number to see details
+```
+
+### Debug Failed Jobs
+```bash
+# Click on failed job
+# View "Job log" section
+# Check error messages and fix issues
+```
+
+### Re-run Pipeline
+```bash
+# In pipeline view: Click "Run pipeline" button
+# Or: git commit --allow-empty -m "Trigger pipeline"
+#     git push origin main
+```
+
+## COMMON ISSUES AND SOLUTIONS
+
+### Issue: Pipeline doesn't start
+**Solution:**
+```bash
+# Check if runners are available
+# GitLab UI: Settings > CI/CD > Runners
+# Ensure at least one runner is active
+```
+
+### Issue: Docker image not found
+**Solution:**
+```yaml
+# Use official images
+image: python:3.9
+# Or specify full path
+image: docker.io/python:3.9
+```
+
+### Issue: Job times out
+**Solution:**
+```yaml
+# Add timeout
+job_name:
+  timeout: 1 hour  # Default is 1 hour
+```
+
+### Issue: Dependencies conflict
+**Solution:**
+```yaml
+# Use specific versions
+variables:
+  PYTHON_VERSION: "3.9.7"
+  NODE_VERSION: "18.12.0"
+```
+
+## ADVANCED FEATURES
+
+### Using GitLab Environments
+```yaml
+deploy_staging:
+  environment:
+    name: staging
+    url: https://staging-atm.example.com
+    on_stop: stop_staging    # Cleanup job
+
+stop_staging:
+  script: echo "Stopping staging environment"
+  when: manual
+  environment:
+    name: staging
+    action: stop
+```
+
+### Parallel Jobs
+```yaml
+test_unit:
+  stage: test
+  script: pytest tests/unit/
+
+test_integration:
+  stage: test
+  script: pytest tests/integration/
+  # These run in parallel
+```
+
+### Caching Dependencies
+```yaml
+cache:
+  paths:
+    - .cache/pip
+    - node_modules/
+
+before_script:
+  - pip install -r requirements.txt
+```
+
+## SECURITY BEST PRACTICES
+
+### Protect Secrets
+```bash
+# GitLab UI: Settings > CI/CD > Variables
+# Add variables like:
+# AWS_ACCESS_KEY_ID
+# DATABASE_PASSWORD
+```
+
+### Use in Pipeline
+```yaml
+script:
+  - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+  - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+```
+
+### Branch Protection
+```bash
+# GitLab UI: Settings > Repository > Protected branches
+# Protect main branch
+# Require code review for merge requests
+```
+
+## DEPLOYMENT STRATEGIES
+
+### Blue-Green Deployment
+```yaml
+deploy_blue:
+  script: deploy_to_blue_environment
+  environment:
+    name: blue
+
+deploy_green:
+  script: deploy_to_green_environment
+  environment:
+    name: green
+```
+
+### Rolling Deployment
+```yaml
+deploy_rolling:
+  script:
+    - deploy_to_server_1
+    - deploy_to_server_2
+    - deploy_to_server_3
+  environment:
+    name: production
+```
+
+## MONITORING AND ALERTS
+
+### Pipeline Notifications
+```bash
+# GitLab UI: Settings > Integrations
+# Add Slack, email, or webhook notifications
+# Configure for pipeline events
+```
+
+### Health Checks
+```yaml
+health_check:
+  stage: deploy
+  script:
+    - curl -f https://atm.example.com/health || exit 1
+  environment:
+    name: production
+```
+
+## QUICK REFERENCE
+
+### Essential GitLab CI/CD Commands
+```bash
+# Check pipeline status
+gitlab-runner status
+
+# View job logs
+# GitLab UI: CI/CD > Pipelines > [pipeline] > [job]
+
+# Re-run failed job
+# Click "Retry" button in job view
+
+# Cancel running pipeline
+# Click "Cancel" button in pipeline view
+```
+
+### Common .gitlab-ci.yml Patterns
+```yaml
+# Basic job
+job_name:
+  script: echo "Hello World"
+
+# Job with artifacts
+job_name:
+  script: generate_report.sh
+  artifacts:
+    paths:
+      - report.txt
+
+# Manual job
+job_name:
+  script: deploy.sh
+  when: manual
+
+# Job with environment
+job_name:
+  script: deploy.sh
+  environment: production
+```
+
+### Git Commands for CI/CD
+```bash
+# Push and trigger pipeline
+git add .
+git commit -m "Update feature"
+git push origin main
+
+# Create release
+git tag v1.1.0
+git push origin v1.1.0
+
+# Hotfix workflow
+git checkout -b hotfix/critical-bug
+# Fix bug...
+git commit -m "Fix critical bug"
+git push origin hotfix/critical-bug
+# Create merge request to main
+```
+
+This CI/CD setup provides automated testing, quality checks, and deployment capabilities for the ATM system, ensuring reliable and consistent releases.
