@@ -1,0 +1,41 @@
+==================================================
+HOW TO RUN THE BLACKBOX TESTS FOR EACH SYSTEM
+==================================================
+
+Because these 5 systems are fundamentally separate applications that happen 
+to share the exact same filename for their core application (`app.py`), you 
+cannot run a single wildcard `pytest` command for all of them at once. 
+Doing so causes module caching conflicts in Python.
+
+To run the tests successfully, you must navigate into each specific system's 
+directory and run pytest in isolation.
+
+STEP-BY-STEP INSTRUCTIONS:
+--------------------------------------------------
+
+1. Activate your virtual environment first (if not already active):
+   $ source /home/max/Documents/SE-templates/registration_system/venv/bin/activate
+
+2. Run tests for ATM System:
+   $ cd /home/max/Documents/SE-templates/atm_system
+   $ pytest test_atm.py
+
+3. Run tests for Event Registration:
+   $ cd /home/max/Documents/SE-templates/event_registration
+   $ pytest test_event.py
+
+4. Run tests for Student Management:
+   $ cd /home/max/Documents/SE-templates/student_management
+   $ pytest test_student.py
+
+5. Run tests for Ticket Management:
+   $ cd /home/max/Documents/SE-templates/ticket_management
+   $ pytest test_ticket.py
+
+6. Run tests for Food Registration:
+   $ cd /home/max/Documents/SE-templates/food_registration
+   $ pytest test_food.py
+
+--------------------------------------------------
+NOTE: If a test fails and you want to see detailed debugging output, append `-v -s`:
+   $ pytest test_atm.py -v -s
