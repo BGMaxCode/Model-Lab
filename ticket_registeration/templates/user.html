@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card glass-card p-4 mb-4">
+            <h4 class="text-primary fw-bold mb-3">Welcome, {{ user.username }}</h4>
+            <h5 class="fw-semibold">Available Tickets</h5>
+            <hr>
+            <div class="row mt-3">
+                {% for t in tickets %}
+                <div class="col-md-6 mb-3">
+                    <div class="card shadow-sm border-0 h-100" style="border-radius: 12px; transition: transform 0.2s;">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title fw-bold mb-0 text-dark">{{ t.title }}</h5>
+                                <span class="badge bg-secondary rounded-pill">{{ t.category }}</span>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <span class="badge bg-light text-dark border me-1"><small>📅 {{ t.date }}</small></span>
+                                {% if t.time %}<span class="badge bg-light text-dark border me-1"><small>🕒 {{ t.time }}</small></span>{% endif %}
+                                {% if t.price %}<span class="badge bg-light text-dark border"><small>💰 {{ t.price }}</small></span>{% endif %}
+                            </div>
+
+                            {% if t.venue %}
+                            <p class="card-text mb-1 small text-muted"><strong>Location:</strong> {{ t.venue }}</p>
+                            {% endif %}
+
+                            {% if t.description %}
+                            <p class="card-text small text-secondary flex-grow-1">{{ t.description }}</p>
+                            {% endif %}
+
+                            <button class="btn btn-sm btn-primary mt-3 w-100 fw-bold shadow-sm">Select Ticket</button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted">No tickets available at the moment.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card glass-card p-4" style="height: 500px;">
+            <h5 class="fw-bold text-info">Admin Logs & Status</h5>
+            <hr>
+            <div style="overflow-y: auto; height: 100%; padding-right: 5px;">
+                {% for m in messages %}
+                <div class="alert alert-light border shadow-sm py-2 px-3 mb-2" style="border-radius: 8px;">
+                    <small class="text-muted d-block mb-1" style="font-size:0.75rem;">{{ m.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                    <span class="fw-semibold text-dark">{{ m.content }}</span>
+                </div>
+                {% else %}
+                <p class="text-muted small">No recent logs.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card glass-card p-4 mb-4">
+            <h4 class="fw-bold text-primary">Dashboard Controls</h4>
+            <hr>
+            <h6 class="fw-semibold mt-3">Create Tickets (Train/Movie)</h6>
+            <form method="POST" class="mt-2">
+                <input type="hidden" name="action" value="add_ticket">
+                <div class="row mb-2">
+                    <div class="col-md-6"><label class="small fw-bold">Title</label><input type="text" name="title" class="form-control form-control-sm" placeholder="e.g. Morning Express" required></div>
+                    <div class="col-md-6"><label class="small fw-bold">Category</label><input type="text" name="category" class="form-control form-control-sm" placeholder="e.g. Train / Movie / Event" required></div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-6"><label class="small fw-bold">Date</label><input type="date" name="date" class="form-control form-control-sm" required></div>
+                    <div class="col-md-6"><label class="small fw-bold">Time</label><input type="time" name="time" class="form-control form-control-sm" placeholder="Show Time"></div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-6"><label class="small fw-bold">Venue</label><input type="text" name="venue" class="form-control form-control-sm" placeholder="Platform 1 / Screen 4"></div>
+                    <div class="col-md-6"><label class="small fw-bold">Price</label><input type="text" name="price" class="form-control form-control-sm" placeholder="$0.00"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="small fw-bold">Description</label>
+                    <textarea name="description" class="form-control form-control-sm" rows="2" placeholder="Slight delay expected..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold shadow-sm">Push Ticket</button>
+            </form>
+        </div>
+
+        <div class="card glass-card p-4 mb-4">
+            <h6 class="fw-semibold">Broadcast Status to Users</h6>
+            <form method="POST" class="mt-2">
+                <input type="hidden" name="action" value="message">
+                <textarea name="content" class="form-control form-control-sm mb-2" rows="3" placeholder="Type a status log (e.g. 'Train 102 delayed')..." required></textarea>
+                <button type="submit" class="btn btn-info btn-sm w-100 fw-bold text-white">Send Log to Users</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card glass-card p-4 h-100">
+            <h4 class="fw-bold text-danger">User Management</h4>
+            <hr>
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle mt-2">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Username</th>
+                            <th class="text-center">Fails</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td class="fw-semibold">{{ u.username }}</td>
+                            <td class="text-center">{{ u.failed_attempts }}</td>
+                            <td>
+                                {% if u.is_locked %}
+                                <span class="badge bg-danger rounded-pill px-2 py-1">Locked</span>
+                                {% else %}
+                                <span class="badge bg-success rounded-pill px-2 py-1">Active</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if u.is_locked %}
+                                <a href="/unlock/{{ u.id }}" class="btn btn-outline-warning btn-sm fw-bold">Unlock</a>
+                                {% else %}
+                                <span class="text-muted small">OK</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
